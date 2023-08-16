@@ -1,6 +1,7 @@
 import {createContext, useContext, useEffect, useState} from "react";
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import {ToastAndroid} from "react-native";
 
 interface AuthProps{
     authState?: {token: string | null; authenticated:boolean | null};
@@ -10,7 +11,7 @@ interface AuthProps{
 }
 
 const TOKEN_KEY = 'my_jwt';
-export const API_URL = 'https://25ac-31-217-28-88.ngrok.io/users/';
+export const API_URL = 'https://e920-31-217-12-76.ngrok.io/users/';
 const AuthContext = createContext<AuthProps>({});
 
 export const useAuth = () => {
@@ -56,38 +57,42 @@ export const AuthProvider = ({children}: any)=> {
         }
     }
 
-    const login = async (username:string, password: string) => {
+    const login = async (username: string, password: string) => {
         try {
             const data = {
                 username: username,
                 password: password,
             };
+
             console.log("ENTERING REAL LOGIN");
-            const result = await axios.post(`${API_URL}signin`, data, {
+            const response = await axios.post(`${API_URL}signin`, data, {
                 headers: {
-                    "Content-Type": "application/json", // Set the Content-Type header
-                }
+                    "Content-Type": "application/json",
+                },
             });
 
-            console.log("RESULT", result);
+            console.log("RESPONSE", response);
 
-            setAuthState({
-                token: result.data.token,
-                authenticated: true
-            });
+            if (response.status === 200) {
+                setAuthState({
+                    token: response.data.token,
+                    authenticated: true,
+                });
 
-            axios.defaults.headers.common['Authorization'] = `Bearer ${result.data}`;
+                axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
 
-            console.log("TOKEN", authState.token);
-            await  SecureStore.setItemAsync(TOKEN_KEY, result.data.token);
+                console.log("TOKEN", authState.token);
+                await SecureStore.setItemAsync(TOKEN_KEY, response.data.token);
 
-            return result;
+                return response.data;
+
+            }
+        } catch (error) {
+            if(error.response.status===422) {
+                return {error: true, msg: "Invalid username or password"};
+            }
         }
-        catch(e){
-            console.log(e);
-            return e;//pogledaj kak je kod tebe u apiju
-        }
-    }
+    };
 
     const logout = async () => {
         await SecureStore.deleteItemAsync(TOKEN_KEY);

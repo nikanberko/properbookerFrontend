@@ -1,4 +1,4 @@
-import {View, Text, TextInput, Button, SafeAreaView, TouchableOpacity} from "react-native";
+import {View, Text, TextInput, Button, SafeAreaView, TouchableOpacity, ToastAndroid} from "react-native";
 import React, {useState} from "react";
 import {useAuth} from "../context/AuthContext";
 import styles from "../styles/component-styling";
@@ -16,7 +16,7 @@ const Login = ({navigation}) => {
         const result = await onLogin!(username, password);
         console.log("exiting login");
         if(result && result.error) {
-            alert(result.msg);
+            ToastAndroid.show(result.msg, ToastAndroid.SHORT);
         }
     };
 

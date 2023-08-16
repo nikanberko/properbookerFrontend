@@ -23,7 +23,8 @@ export const Layout = () => {
 
 
   const {authState, onLogout} = useAuth();
-    const [fontsLoaded] = useFonts({
+
+  const [fontsLoaded] = useFonts({
         DMBold: require(".//assets/fonts/DMSans-Bold.ttf"),
         DMMedium: require(".//assets/fonts/DMSans-Medium.ttf"),
         DMRegular: require(".//assets/fonts/DMSans-Regular.ttf"),
@@ -36,27 +37,32 @@ export const Layout = () => {
   console.log(authState);
   return(
       <NavigationContainer>
-        <Stack.Navigator>
-          { authState?.authenticated ?
-              (<Stack.Screen
-                  name="Home"
-                  component={Home}
-                  options={{
-                   headerRight: () => <Button onPress={onLogout} title= "Sign out" />
-              }}
-              >
-              </Stack.Screen> ) :
-              (<Stack.Screen
-                  name="Welcome"
-                  component={Welcome}
-                  options={{
-                      headerShown:false
-                  }}
-              ></Stack.Screen> )
-          }
-            <Stack.Screen name="Login" component={Login} options={{headerShown:false}}></Stack.Screen>
-
-        </Stack.Navigator>
+          <Stack.Navigator>
+              {!authState?.authenticated ? (
+                  <Stack.Screen
+                      name="Welcome"
+                      component={Welcome}
+                      options={{ headerShown: false }}
+                  />
+              ) : (
+                  <>
+                      <Stack.Screen
+                          name="Home"
+                          component={Home}
+                          options={{
+                              headerRight: () => <Button onPress={onLogout} title="Sign out" />,
+                          }}
+                      />
+                  </>
+              )}
+              {!authState?.authenticated && (
+                  <Stack.Screen
+                      name="Login"
+                      component={Login}
+                      options={{ headerShown: false }}
+                  />
+              )}
+          </Stack.Navigator>
       </NavigationContainer>
   )
 }
