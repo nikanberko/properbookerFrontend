@@ -1,10 +1,11 @@
-import {FlatList, Text, View} from "react-native";
+import {FlatList, Image, Text, View} from "react-native";
 
 import React, {useEffect, useState} from "react";
 import {COLORS, FONT, SIZES} from "../../constants/theme";
 import {retrieveToken} from "../utils/retireveToken";
 import jwtDecode from 'jwt-decode';
 import axios from "axios";
+import ApartmentCard from "../../components/common/ApartmentCard";
 
 const Home = () => {
     const [username, setUsername] = useState(""); // State for storing the username
@@ -26,13 +27,13 @@ const Home = () => {
         const apiUrl = 'https://8338-31-217-45-155.ngrok.io/apartments';
 
         // Your authorization token
-        const authToken = 'your-auth-token';
+        const authToken = await retrieveToken();
 
         // Set up Axios instance with default headers
         const axiosInstance = axios.create({
             baseURL: apiUrl,
             headers: {
-                //'Authorization': `Bearer ${authToken}`,
+                'Authorization': `Bearer ${authToken}`,
                 'Content-Type': 'application/json', // You can adjust this header if needed
             },
         });
@@ -54,7 +55,10 @@ const Home = () => {
     }, []);
 
     return (
-        <View>
+        <View
+        style={{
+            flex: 1
+        }}>
             <Text style={{
                 marginTop: 50,
                 marginHorizontal: 20,
@@ -69,6 +73,7 @@ const Home = () => {
             <Text style={{
                 marginHorizontal: 20,
                 marginTop: 10,
+                marginBottom:30,
                 fontFamily: FONT.regular,
                 fontSize: SIZES.xLarge,
                 textAlign: 'left',
@@ -76,9 +81,13 @@ const Home = () => {
             }}>
                 Manage your guests here
             </Text>
-            <FlatList data={apartments} renderItem={({item}) => (
-                <Text>{item.username}</Text>
-            )}/>
+            <FlatList
+                data={apartments}
+                keyExtractor={(item) => item.id.toString()} // Assuming 'id' is the unique identifier
+                renderItem={({ item }) => (
+                        <ApartmentCard title={item.name} description={item.details} imageUrl={"../../assets/businessman.jpg"}></ApartmentCard>
+                )}
+            />
         </View>
     );
 };
