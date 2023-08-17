@@ -1,19 +1,20 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import {COLORS, FONT} from "../../constants/theme";
 
-const ApartmentCard = ({ title, imageUrl, description }) => {
+const ApartmentCard = ({ title, imageUrl, description, beds, rooms }) => {
     return (
         <View style={styles.card}>
-            <Image source={{ uri: imageUrl }} style={styles.image} />
+            <Image source={imageUrl} style={styles.image} />
             <View style={styles.details}>
                 <Text style={styles.title}>{title}</Text>
                 <Text style={styles.description}>{description}</Text>
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity style={styles.button}>
-                        <Text style={styles.buttonText}>Button 1</Text>
+                        <Text style={styles.buttonText}>Add guest</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.button}>
-                        <Text style={styles.buttonText}>Button 2</Text>
+                        <Text style={styles.buttonText}>PDF Receipt</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -30,7 +31,7 @@ const styles = StyleSheet.create({
         margin: 10,
     },
     image: {
-        height: 150, // Adjust the height as needed
+        height: 100, // Adjust the height as needed
         width: '100%',
     },
     details: {
@@ -46,17 +47,24 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 10,
+        justifyContent: 'space-evenly',
+        marginTop: 15,
     },
     button: {
-        backgroundColor: 'blue',
-        paddingHorizontal: 15,
-        paddingVertical: 8,
-        borderRadius: 5,
+        backgroundColor: COLORS.white,
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+        borderRadius: 40,
+        borderWidth: 1,
+        borderColor: COLORS.secondary,
+        width:'40%',
+        marginHorizontal: 10
+
     },
     buttonText: {
-        color: 'white',
+        color: COLORS.primary,
+        fontFamily: FONT.regular,
+        textAlign:"center"
     },
 });
 
