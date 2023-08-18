@@ -9,7 +9,9 @@ const PdfGenerator = ({route}) => {
     const [pricePerNight, setPricePerNight] = useState("");
     const [idNumber, setIdNumber] = useState("");
     const [discount, setDiscount] = useState("");
+    const [numberOfGuests, setNumberOfGuests] = useState("");
     const [numberOfStaysError, setNumberOfStaysError] = useState("");
+    const [numberOfGuestsError, setNumberOfGuestsError] = useState("");
     const [pricePerNightError, setPricePerNightError] = useState("");
     const [idNumberError, setIdNumberError] = useState("");
     const [discountError, setDiscountError] = useState("");
@@ -44,7 +46,7 @@ const PdfGenerator = ({route}) => {
 
     const handleNumberOfStaysChange = (text) => {
         if (!validateInteger(text)) {
-            setNumberOfStaysError("Please enter a valid integer");
+            setNumberOfStaysError("Please enter a valid number of stays");
         } else {
             setNumberOfStaysError("");
         }
@@ -53,7 +55,7 @@ const PdfGenerator = ({route}) => {
 
     const handlePricePerNightChange = (text) => {
         if (!validateDecimal(text)) {
-            setPricePerNightError("Please enter a valid decimal number");
+            setPricePerNightError("Please enter a valid price");
         } else {
             setPricePerNightError("");
         }
@@ -62,7 +64,7 @@ const PdfGenerator = ({route}) => {
 
     const handleIdNumberChange = (text) => {
         if (!validateInteger(text)) {
-            setIdNumberError("Please enter a valid integer");
+            setIdNumberError("Please enter a valid id number");
         } else {
             setIdNumberError("");
         }
@@ -71,11 +73,20 @@ const PdfGenerator = ({route}) => {
 
     const handleDiscountChange = (text) => {
         if (!validateDecimal(text)) {
-            setDiscountError("Please enter a valid decimal number");
+            setDiscountError("Please enter a valid discount value");
         } else {
             setDiscountError("");
         }
         setDiscount(text);
+    };
+
+    const handleNumberOfGuestsChange = (text) => {
+        if (!validateDecimal(text)) {
+            setNumberOfGuestsError("Please enter valid number of guests");
+        } else {
+            setNumberOfGuestsError("");
+        }
+        setNumberOfGuests(text);
     };
 
     return (
@@ -85,6 +96,18 @@ const PdfGenerator = ({route}) => {
                 <Text style={styles.apartmentTitle}>{apartmentName}</Text>
 
                 <Text style={styles.dateTimeText}>{currentDateTime}</Text>
+
+                <Text style={styles.inputTitle}>Number of guests</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="2"
+                    keyboardType="number-pad"
+                    onChangeText={handleNumberOfGuestsChange}
+                    value={numberOfGuests}
+                />
+                {numberOfStaysError ? (
+                    <Text style={styles.errorText}>{numberOfGuestsError}</Text>
+                ) : null}
 
                 <Text style={styles.inputTitle}>Number of Stays</Text>
                 <TextInput
