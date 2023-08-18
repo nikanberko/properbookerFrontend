@@ -7,6 +7,7 @@ import Home from "./app/screens/home";
 import Login from "./app/screens/login";
 import {useFonts} from "expo-font";
 import Welcome from "./app/screens/welcome";
+import PdfGenerator from "./app/screens/estimation-generator";
 
 const Stack = createNativeStackNavigator();
 
@@ -36,6 +37,8 @@ export const Layout = () => {
     }
   console.log(authState);
   return(
+      <>
+      <StatusBar hidden/>
       <NavigationContainer>
           <Stack.Navigator>
               {!authState?.authenticated ? (
@@ -50,7 +53,7 @@ export const Layout = () => {
                           name="Home"
                           component={Home}
                           options={{
-                              //headerRight: () => <Button onPress={onLogout} title="Sign out"/>,
+                              //headerRight: () => <Button onPress={onLogout}  title="Sign out"/>,
                               headerBackButtonMenuEnabled: false,
                               headerTitle:"",
                               headerShown:false
@@ -65,7 +68,13 @@ export const Layout = () => {
                       options={{ headerShown: false }}
                   />
               )}
+              <Stack.Screen
+                  name="PdfGenerator"
+                  component={PdfGenerator}
+                  options={{headerShown: false}}
+              />
           </Stack.Navigator>
       </NavigationContainer>
+      </>
   )
 }
