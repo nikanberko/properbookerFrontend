@@ -11,7 +11,7 @@ interface AuthProps{
 }
 
 const TOKEN_KEY = 'my_jwt';
-export const API_URL = 'https://1198-31-217-12-232.ngrok.io/users/';
+export const API_URL = 'https://c0e3-46-188-225-44.ngrok.io/users/';
 const AuthContext = createContext<AuthProps>({});
 
 export const useAuth = () => {

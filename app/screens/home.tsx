@@ -29,7 +29,7 @@ const Home = () => {
 
     const getUserApartments = async () => {
         // Your API endpoint URL
-        const apiUrl = 'https://9f27-31-217-12-232.ngrok.io/apartments';
+        const apiUrl = 'https://4058-46-188-225-44.ngrok.io/apartments';
 
         // Your authorization token
         const authToken = await retrieveToken();
@@ -46,8 +46,8 @@ const Home = () => {
         try {
             // Make the GET request
             const response = await axiosInstance.get('/getall');
-            setApartments(response.data);
-            console.log('Response:', response.data);
+            if(response.data!==null){
+            setApartments(response.data);}
 
         } catch (error) {
             console.error('Error:', error);
@@ -57,7 +57,6 @@ const Home = () => {
     useEffect(() => {
         getTokenAndDecode();
         getUserApartments();
-
         const updateDateTime = () => {
             const now = new Date();
             const formattedDateTime = now.toLocaleString('en-US', {
@@ -157,13 +156,30 @@ const Home = () => {
             }}>
                 Register guests with e-visitor or generate a PDF estimation
             </Text>
-            <FlatList
-                data={apartments}
-                keyExtractor={(item) => item.id.toString()} // Assuming 'id' is the unique identifier
-                renderItem={({ item }) => (
-                        <ApartmentCard title={item.name} description={item.details} imageUrl={apartmentImage} beds={item.numberOfBeds} rooms={item.numberOfRooms}></ApartmentCard>
-                )}
-            />
+            {apartments.length > 0 ? (
+                <FlatList
+                    data={apartments}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={({ item }) => (
+                        <ApartmentCard
+                            title={item.name}
+                            description={item.details}
+                            imageUrl={apartmentImage}
+                            beds={item.numberOfBeds}
+                            rooms={item.numberOfRooms}
+                        />
+                    )}
+                />
+            ) : (
+                <Text style={{
+                    fontFamily:FONT.bold,
+                    textAlign: "center",
+                    fontSize: SIZES.small,
+                    marginHorizontal: 30,
+                    marginTop: 20,
+                    color: COLORS.secondary
+                }}>You have no registered apartments. Please contact e-visitor support</Text>
+            )}
         </View>
     );
 };

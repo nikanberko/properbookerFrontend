@@ -1,6 +1,8 @@
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import {COLORS, FONT, SIZES} from "../../constants/theme";
+import RNDateTimePicker from "@react-native-community/datetimepicker";
+import InputScrollView from "react-native-input-scroll-view";
 
 const PdfGenerator = ({route}) => {
     const { apartmentName } = route.params
@@ -8,6 +10,16 @@ const PdfGenerator = ({route}) => {
     const [numberOfStays, setNumberOfStays] = useState("");
     const [pricePerNight, setPricePerNight] = useState("");
     const [idNumber, setIdNumber] = useState("");
+    const [issuerIdNumber, setIssuerIdNumber] = useState("");
+    const [issuer, setIssuer] = useState("");
+    const [telephone, setTelephone] = useState("");
+    const [email, setEmail] = useState("");
+    const [invoiceNumber, setInvoiceNumber] = useState("");
+    const [issuerError, setIssuerError] = useState("");
+    const [telephoneError, setTelephoneError] = useState("");
+    const [invoiceNumberError, setInvoiceNumberError] = useState("");
+    const [emailError, setEmailError] = useState("");
+    const [issuerIdNumberError, setIssuerIdNumberError] = useState("");
     const [discount, setDiscount] = useState("");
     const [numberOfGuests, setNumberOfGuests] = useState("");
     const [numberOfStaysError, setNumberOfStaysError] = useState("");
@@ -15,6 +27,8 @@ const PdfGenerator = ({route}) => {
     const [pricePerNightError, setPricePerNightError] = useState("");
     const [idNumberError, setIdNumberError] = useState("");
     const [discountError, setDiscountError] = useState("");
+    const [date, setDate] = useState(new Date())
+
 
     useEffect(() => {
         const updateDateTime = () => {
@@ -38,6 +52,17 @@ const PdfGenerator = ({route}) => {
 
     const validateInteger = (text) => {
         return /^0$|^[1-9]\d*$/.test(text); // Allow 0 or positive integers without leading zeroes
+    };
+
+    const validateIds = (text) => {
+        return /^\d+$/; // Allow 0 or positive integers without leading zeroes
+    };
+
+    const validatePhoneNumber = (text) => {
+        return /^\d+$/; // too many phone number formats, this validates just numbers
+    };
+    const validateEmail = (text) => {
+        return /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     };
 
     const validateDecimal = (text) => {
@@ -71,6 +96,35 @@ const PdfGenerator = ({route}) => {
         setIdNumber(text);
     };
 
+    const handleIssuerIdNumberChange = (text) => {
+        if (!validateIds(text)) {
+            setIssuerIdNumberError("Please enter a valid issuer id number");
+        } else {
+            setIdNumberError("");
+        }
+        setIssuerIdNumber(text);
+    };
+
+    const handleTelephoneChange = (text) => {
+        if (!validatePhoneNumber(text)) {
+            setTelephoneError("Please enter a valid phone number number");
+        } else {
+            setTelephoneError("");
+        }
+        setTelephone(text);
+    };
+    const handleEmailChange = (text) => {
+        if (!validateEmail(text)) {
+            setEmailError("Please enter a valid e-mail");
+        } else {
+            setEmailError("");
+        }
+        setEmail(text);
+    };
+    const handleIssuerChange = (text) => {
+        setIssuer(text);
+    };
+
     const handleDiscountChange = (text) => {
         if (!validateDecimal(text)) {
             setDiscountError("Please enter a valid discount value");
@@ -80,9 +134,18 @@ const PdfGenerator = ({route}) => {
         setDiscount(text);
     };
 
+    const handleInvoiceNumberChange = (text) => {
+        if (!validateIds(text)) {
+            setInvoiceNumberError("Invoice number must be a number");
+        } else {
+            setInvoiceNumberError("");
+        }
+        setInvoiceNumber(text);
+    };
+
     const handleNumberOfGuestsChange = (text) => {
-        if (!validateDecimal(text)) {
-            setNumberOfGuestsError("Please enter valid number of guests");
+        if (!validateInteger(text)) {
+            setNumberOfGuestsError("Please enter a valid number of guests");
         } else {
             setNumberOfGuestsError("");
         }
@@ -90,12 +153,14 @@ const PdfGenerator = ({route}) => {
     };
 
     return (
+        <InputScrollView>
         <View style={styles.container}>
 
             <View style={styles.inputContainer}>
                 <Text style={styles.apartmentTitle}>{apartmentName}</Text>
 
                 <Text style={styles.dateTimeText}>{currentDateTime}</Text>
+                <RNDateTimePicker value={date}></RNDateTimePicker>
 
                 <Text style={styles.inputTitle}>Number of guests</Text>
                 <TextInput
@@ -133,7 +198,7 @@ const PdfGenerator = ({route}) => {
                     <Text style={styles.errorText}>{pricePerNightError}</Text>
                 ) : null}
 
-                <Text style={styles.inputTitle}>ID Number</Text>
+                <Text style={styles.inputTitle}>Guest ID Number</Text>
                 <TextInput
                     style={styles.input}
                     placeholder="38223234343"
@@ -144,6 +209,56 @@ const PdfGenerator = ({route}) => {
                 {idNumberError ? (
                     <Text style={styles.errorText}>{idNumberError}</Text>
                 ) : null}
+
+                <Text style={styles.inputTitle}>Issuer ID Number</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="38223234343"
+                    keyboardType="number-pad"
+                    onChangeText={handleIssuerIdNumberChange}
+                    value={issuerIdNumber}
+                />
+
+                {issuerIdNumberError ? (
+                    <Text style={styles.errorText}>{issuerIdNumberError}</Text>
+                ) : null}
+
+                <Text style={styles.inputTitle}>Issuer (owner or company name)</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="38223234343"
+                    onChangeText={handleIssuerChange}
+                    value={issuer}
+                />
+
+                {issuerError ? (
+                    <Text style={styles.errorText}>{issuerError}</Text>
+                ) : null}
+
+                <Text style={styles.inputTitle}>Your phone number</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="38223234343"
+                    onChangeText={handleTelephoneChange}
+                    value={telephone}
+                />
+
+                {telephoneError ? (
+                    <Text style={styles.errorText}>{emailError}</Text>
+                ) : null}
+
+                <Text style={styles.inputTitle}>Your e-mail</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="38223234343"
+                    onChangeText={handleEmailChange}
+                    value={email}
+                />
+
+                {emailError ? (
+                    <Text style={styles.errorText}>{emailError}</Text>
+                ) : null}
+
 
                 <Text style={styles.inputTitle}>Discount (%)</Text>
                 <TextInput
@@ -157,17 +272,31 @@ const PdfGenerator = ({route}) => {
                     <Text style={styles.errorText}>{discountError}</Text>
                 ) : null}
 
+                <Text style={styles.inputTitle}>Invoice number</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="30%"
+                    keyboardType="decimal-pad"
+                    onChangeText={handleInvoiceNumberChange}
+                    value={invoiceNumber}
+                />
+                {discountError ? (
+                    <Text style={styles.errorText}>{invoiceNumberError}</Text>
+                ) : null}
+
                 <TouchableOpacity style={styles.button}>
                     <Text style={styles.buttonText}>Generate PDF estimation</Text>
                 </TouchableOpacity>
             </View>
         </View>
+        </InputScrollView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        marginBottom: 10
     },
     inputContainer: {
         alignItems: "center",
@@ -199,7 +328,7 @@ const styles = StyleSheet.create({
         fontSize: SIZES.medium,
         color: COLORS.secondary,
         marginBottom: 5,
-        marginTop: 10,
+        marginTop: 15,
         fontFamily:FONT.regular
     },
     input: {
