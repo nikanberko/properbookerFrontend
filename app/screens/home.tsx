@@ -29,7 +29,7 @@ const Home = () => {
 
     const getUserApartments = async () => {
         // Your API endpoint URL
-        const apiUrl = 'https://4058-46-188-225-44.ngrok.io/apartments';
+        const apiUrl = 'https://c344-46-188-225-44.ngrok.io/apartments';
 
         // Your authorization token
         const authToken = await retrieveToken();
