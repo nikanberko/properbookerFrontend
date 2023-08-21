@@ -1,9 +1,12 @@
-import {StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View} from "react-native";
+import {Linking, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View} from "react-native";
 import React, { useEffect, useState } from "react";
 import {COLORS, FONT, SIZES} from "../../constants/theme";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import InputScrollView from "react-native-input-scroll-view";
 import axios from "axios";
+import * as FileSystem from 'expo-file-system';
+import base64js from "base64-js"
+import * as Sharing from "expo-sharing"
 
 const PdfGenerator = ({route}) => {
     const { apartmentName } = route.params
@@ -35,16 +38,14 @@ const PdfGenerator = ({route}) => {
     const [showCheckOutDatePicker, setShowCheckOutDatePicker] = useState(false);
 
 
+
     useEffect(() => {
         const updateDateTime = () => {
             const now = new Date();
-            const formattedDateTime = now.toLocaleString("en-US", {
+            const formattedDateTime = now.toLocaleDateString("en-US", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
-                hour: "numeric",
-                minute: "numeric",
-                hour12: true,
             });
             setCurrentDateTime(formattedDateTime);
         };
@@ -105,7 +106,7 @@ const PdfGenerator = ({route}) => {
         if (!validateIds(text)) {
             setIssuerIdNumberError("Please enter a valid issuer id number");
         } else {
-            setIdNumberError("");
+            setIssuerIdNumberError("");
         }
         setIssuerIdNumber(text);
     };
@@ -174,7 +175,7 @@ const PdfGenerator = ({route}) => {
     };
 
 
-    const handleGeneratePDF = () => {
+    const handleGeneratePDF = async () => {
         // Check for empty or invalid fields
         if (
             !checkInDate ||
@@ -184,7 +185,7 @@ const PdfGenerator = ({route}) => {
             !validateInteger(idNumber) ||
             !validateIds(issuerIdNumber) ||
             !validatePhoneNumber(telephone) ||
-            !validateEmail(email) ||
+           // !validateEmail(email) ||
             !validateDecimal(discount) ||
             !validateIds(invoiceNumber)
         ) {
@@ -199,8 +200,8 @@ const PdfGenerator = ({route}) => {
             idNumber: idNumber,
             numberOfGuests: parseInt(numberOfGuests),
             numberOfStays: parseInt(numberOfStays),
-            arrivalDate: checkInDate.toISOString(),
-            endDate: checkOutDate.toISOString(),
+            arrivalDate: checkInDate.toLocaleDateString(),
+            endDate: checkOutDate.toLocaleDateString(),
             discount: parseFloat(discount),
             issuer: issuer,
             issueDate: currentDateTime,
@@ -212,19 +213,44 @@ const PdfGenerator = ({route}) => {
         };
 
         // Make the POST request
-        axios.post("https://44d8-46-188-225-44.ngrok.io/pdfgenerator/generate", requestBody)
-            .then(response => {
-                // Handle successful response here
-                console.log("PDF generated:", response.data);
-                ToastAndroid.show("Generated PDF", ToastAndroid.SHORT);
-            })
-            .catch(error => {
-                // Handle error here
-                console.error("Error generating PDF:", error);
-                ToastAndroid.show("Error generating PDF", ToastAndroid.SHORT);
-            });
-    };
 
+        try {
+            // Configure Axios to handle response data as a raw binary response
+            const response = await axios.post("https://e613-46-188-225-44.ngrok.io/pdfgenerator/generate", requestBody, {
+                responseType: 'arraybuffer', // Handle response as an ArrayBuffer
+                headers: {
+                    'Accept': 'application/pdf', // Request PDF format
+                },
+            });
+
+            const pdfData = response.data; // PDF data as ArrayBuffer
+            const base64PdfData = base64js.fromByteArray(new Uint8Array(pdfData));
+
+            // Create a path to save the PDF locally
+            const pdfUri = `${FileSystem.cacheDirectory}generated.pdf`;
+
+            // Write the PDF data to the file
+            await FileSystem.writeAsStringAsync(pdfUri, base64PdfData, {
+                encoding: FileSystem.EncodingType.Base64,
+            });
+
+            console.log("PDF saved at:", pdfUri);
+
+            // Show a toast indicating successful PDF generation
+            ToastAndroid.show("PDF generated and saved", ToastAndroid.SHORT);
+
+            // Share the PDF file
+            await Sharing.shareAsync(pdfUri, {
+                mimeType: 'application/pdf',
+                dialogTitle: 'Share PDF Estimation',
+                UTI: 'com.adobe.pdf', // iOS-specific UTI
+            });
+
+        } catch (error) {
+            console.error("Error generating or saving PDF:", error);
+            ToastAndroid.show("Error generating or saving PDF", ToastAndroid.SHORT);
+        }
+    };
 
     return (
         <InputScrollView>
@@ -238,7 +264,7 @@ const PdfGenerator = ({route}) => {
                 <Text style={styles.inputTitle}>Estimation for:</Text>
                 <TextInput
                     style={styles.input}
-                    placeholder="2"
+                    placeholder="Guest or company name"
                     onChangeText={handleEstimationForChange}
                     value={estimationFor}
                 />
@@ -336,7 +362,7 @@ const PdfGenerator = ({route}) => {
                 <Text style={styles.inputTitle}>Issuer (owner or company name)</Text>
                 <TextInput
                     style={styles.input}
-                    placeholder="38223234343"
+                    placeholder="Owner name or company"
                     onChangeText={handleIssuerChange}
                     value={issuer}
                 />
@@ -348,7 +374,8 @@ const PdfGenerator = ({route}) => {
                 <Text style={styles.inputTitle}>Your phone number</Text>
                 <TextInput
                     style={styles.input}
-                    placeholder="38223234343"
+                    placeholder="099234567"
+                    keyboardType="number-pad"
                     onChangeText={handleTelephoneChange}
                     value={telephone}
                 />
@@ -360,7 +387,7 @@ const PdfGenerator = ({route}) => {
                 <Text style={styles.inputTitle}>Your e-mail</Text>
                 <TextInput
                     style={styles.input}
-                    placeholder="38223234343"
+                    placeholder="user@user.com"
                     onChangeText={handleEmailChange}
                     value={email}
                 />
@@ -385,7 +412,7 @@ const PdfGenerator = ({route}) => {
                 <Text style={styles.inputTitle}>Invoice number</Text>
                 <TextInput
                     style={styles.input}
-                    placeholder="30%"
+                    placeholder="1008"
                     keyboardType="decimal-pad"
                     onChangeText={handleInvoiceNumberChange}
                     value={invoiceNumber}
