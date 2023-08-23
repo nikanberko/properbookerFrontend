@@ -21,7 +21,7 @@ const CameraButton = () => {
         result = await ImagePicker.launchCameraAsync({mediaTypes: ImagePicker.MediaTypeOptions.Images});
 
         if(!result.canceled){
-            console.log("HEYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",result.assets[0].uri);
+            await saveImage(result.assets[0].uri);
         }
     }
 const saveImage = async (uri: string) =>{

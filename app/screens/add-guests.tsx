@@ -1,6 +1,5 @@
-import {Linking, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View} from "react-native";
+import {Text, TextInput, ToastAndroid, TouchableOpacity, View} from "react-native";
 import React, { useEffect, useState } from "react";
-import {COLORS, FONT, SIZES} from "../../constants/theme";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import InputScrollView from "react-native-input-scroll-view";
 import axios from "axios";
@@ -8,7 +7,15 @@ import * as FileSystem from 'expo-file-system';
 import base64js from "base64-js"
 import * as Sharing from "expo-sharing"
 import styles from "../styles/component-styling";
-import CameraButton from "../../components/common/CameraButton";
+import * as ImagePicker from "expo-image-picker";
+
+const imgDir= FileSystem.documentDirectory + 'images/';
+const ensureDirExists = async () => {
+    const dirInfo = await FileSystem.getInfoAsync(imgDir);
+    if(!dirInfo.exists) {
+        await FileSystem.makeDirectoryAsync(imgDir, {intermediates: true})
+    }
+};
 
 const AddGuests = ({route}) => {
     const { apartmentName } = route.params
@@ -30,8 +37,32 @@ const AddGuests = ({route}) => {
     const [showDateOfBirthPicker, setShowDateOfBirthPicker] = useState(false);
     const [showCheckInDatePicker, setShowCheckInDatePicker] = useState(false);
     const [showCheckOutDatePicker, setShowCheckOutDatePicker] = useState(false);
+    const [imageContentBase64, setImageContentBase64] = useState("");
 
 
+    const selectImage = async  () : Promise<string> => {
+        let result;
+        await ImagePicker.requestCameraPermissionsAsync();
+        result = await ImagePicker.launchCameraAsync({mediaTypes: ImagePicker.MediaTypeOptions.Images});
+
+        if(!result.canceled){
+            return await saveImage(result.assets[0].uri);
+        }
+    }
+    const saveImage = async (uri: string) : Promise<string> =>{
+        await ensureDirExists();
+        const filename = new Date().getTime() +'.jpg';
+        const dest = imgDir + filename;
+        console.log("DESTINATION", dest);
+        await FileSystem.copyAsync({from: uri, to: dest});
+
+        const imageData = await FileSystem.readAsStringAsync(dest, {
+            encoding: FileSystem.EncodingType.Base64,
+        });
+
+        console.log("BASE64", imageData);
+        return imageData;
+    }
 
     useEffect(() => {
         const updateDateTime = () => {
@@ -95,6 +126,7 @@ const AddGuests = ({route}) => {
     const handleGuestLastNameChange = (text) => {
         setGuestLastName(text);
     };
+
 
     const handleGenderChange = (selectedGender) => {
         setGender(selectedGender);
@@ -195,6 +227,41 @@ const AddGuests = ({route}) => {
         }
     };
 
+
+    const getDocumentTextDetection = async () => {
+        const imageData = await selectImage();
+
+        let googleVisionRes = await fetch("https://vision.googleapis.com/v1/images:annotate?key=",{
+            method: 'POST',
+            body: JSON.stringify({
+                "requests": [
+                    {
+                        "image": {
+                            "content": imageData
+                        },
+                        features: [
+                            { type: "DOCUMENT_TEXT_DETECTION", maxResults: 5 },
+                        ],
+                    }
+                ]
+            })
+        });
+
+        try {
+            const response = await googleVisionRes.json();
+
+            if (response.responses && response.responses.length > 0) {
+                const fullTextAnnotation = response.responses[0].fullTextAnnotation;
+                console.log("Full Text Annotation:", fullTextAnnotation);
+            } else {
+                console.log("No valid response or fullTextAnnotation found in the response.");
+            }
+        } catch (error) {
+            console.error("Error parsing or handling response:", error);
+        }
+    };
+
+
     return (
         <InputScrollView>
             <View style={styles.container}>
@@ -204,9 +271,12 @@ const AddGuests = ({route}) => {
 
                     <Text style={styles.dateTimeText}>{currentDateTime}</Text>
 
-                   <CameraButton></CameraButton>
-
                     <Text style={styles.dateTimeText}>The fields below will be automatically filled in after scan. Please fill out all the fields which are empty after scan </Text>
+
+
+                    <TouchableOpacity style={styles.button} onPress={getDocumentTextDetection}>
+                        <Text style={styles.buttonText}>Scan ID document</Text>
+                    </TouchableOpacity>
 
                     <Text style={styles.inputTitle}>Guest first name:</Text>
                     <TextInput
