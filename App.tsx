@@ -8,6 +8,8 @@ import Login from "./app/screens/login";
 import {useFonts} from "expo-font";
 import Welcome from "./app/screens/welcome";
 import PdfGenerator from "./app/screens/estimation-generator";
+import AddGuests from "./app/screens/add-guests";
+import CameraButton from "./components/common/CameraButton";
 
 const Stack = createNativeStackNavigator();
 
@@ -71,6 +73,11 @@ export const Layout = () => {
               <Stack.Screen
                   name="PdfGenerator"
                   component={PdfGenerator}
+                  options={{headerShown: false}}
+              />
+              <Stack.Screen
+                  name="AddGuests"
+                  component={AddGuests}
                   options={{headerShown: false}}
               />
           </Stack.Navigator>

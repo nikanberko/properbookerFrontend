@@ -185,9 +185,11 @@ const PdfGenerator = ({route}) => {
             !validateInteger(idNumber) ||
             !validateIds(issuerIdNumber) ||
             !validatePhoneNumber(telephone) ||
-           // !validateEmail(email) ||
+            !validateEmail(email) ||
             !validateDecimal(discount) ||
-            !validateIds(invoiceNumber)
+            !validateIds(invoiceNumber) ||
+            !issuer ||
+            !estimationFor
         ) {
             ToastAndroid.show("Please fill out all the text fields", ToastAndroid.SHORT);
             return;
@@ -216,7 +218,7 @@ const PdfGenerator = ({route}) => {
 
         try {
             // Configure Axios to handle response data as a raw binary response
-            const response = await axios.post("https://e613-46-188-225-44.ngrok.io/pdfgenerator/generate", requestBody, {
+            const response = await axios.post("https://ceeb-46-188-225-44.ngrok.io/pdfgenerator/generate", requestBody, {
                 responseType: 'arraybuffer', // Handle response as an ArrayBuffer
                 headers: {
                     'Accept': 'application/pdf', // Request PDF format
@@ -278,7 +280,7 @@ const PdfGenerator = ({route}) => {
                     onChangeText={handleNumberOfGuestsChange}
                     value={numberOfGuests}
                 />
-                {numberOfStaysError ? (
+                {numberOfGuestsError ? (
                     <Text style={styles.errorText}>{numberOfGuestsError}</Text>
                 ) : null}
 
@@ -379,10 +381,10 @@ const PdfGenerator = ({route}) => {
                     onChangeText={handleTelephoneChange}
                     value={telephone}
                 />
-
                 {telephoneError ? (
-                    <Text style={styles.errorText}>{emailError}</Text>
+                    <Text style={styles.errorText}>{telephoneError}</Text>
                 ) : null}
+
 
                 <Text style={styles.inputTitle}>Your e-mail</Text>
                 <TextInput
@@ -417,7 +419,7 @@ const PdfGenerator = ({route}) => {
                     onChangeText={handleInvoiceNumberChange}
                     value={invoiceNumber}
                 />
-                {discountError ? (
+                {invoiceNumberError ? (
                     <Text style={styles.errorText}>{invoiceNumberError}</Text>
                 ) : null}
 

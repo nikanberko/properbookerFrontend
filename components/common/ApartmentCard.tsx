@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, FONT } from '../../constants/theme';
 import {useNavigation} from "@react-navigation/native";
+import AddGuests from "../../app/screens/add-guests";
 
 const ApartmentCard = ({ title, imageUrl, description, beds, rooms }) => {
     const navigation = useNavigation();
@@ -15,7 +16,7 @@ const ApartmentCard = ({ title, imageUrl, description, beds, rooms }) => {
                     <Text style={styles.infoText}>{`${beds} beds • ${rooms} rooms`}</Text>
                 </View>
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity style={styles.button} onPress={() => {navigation.navigate('AddGuests', {apartmentName: title})}}>
                         <Text style={styles.buttonText}>Add guest</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('PdfGenerator', { apartmentName: title})}>
