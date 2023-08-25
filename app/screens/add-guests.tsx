@@ -25,6 +25,7 @@ const AddGuests = ({route}) => {
     const [issuer, setIssuer] = useState("");
     const [gender, setGender] = useState("");
     const [organizationType, setOrganizationType] = useState("");
+    const [documentType, setDocumentType] = useState("");
     const [citizenship, setCitizenship] = useState("");
     const [guestName, setGuestName] = useState("");
     const [guestLastName, setGuestLastName] = useState("");
@@ -37,8 +38,6 @@ const AddGuests = ({route}) => {
     const [showDateOfBirthPicker, setShowDateOfBirthPicker] = useState(false);
     const [showCheckInDatePicker, setShowCheckInDatePicker] = useState(false);
     const [showCheckOutDatePicker, setShowCheckOutDatePicker] = useState(false);
-    const [imageContentBase64, setImageContentBase64] = useState("");
-
 
     const selectImage = async  () : Promise<string> => {
         let result;
@@ -86,7 +85,7 @@ const AddGuests = ({route}) => {
     };
 
     const validateIds = (text) => {
-        return /^\d+$/.test(text); // Allow 0 or positive integers without leading zeroes
+        return /^\d+$/.test(text);
     };
 
 
@@ -141,6 +140,9 @@ const AddGuests = ({route}) => {
         setAddress(text);
     };
 
+    const handleDocumentTypeChange = (text) => {
+        setDocumentType(text);
+    };
 
     const handleCheckInDateChange = (event, selectedDate) => {
         const currentDate = selectedDate || checkInDate;
@@ -161,77 +163,32 @@ const AddGuests = ({route}) => {
     };
 
 
-    const handleGeneratePDF = async () => {
-        // Check for empty or invalid fields
+    const validateFieldState = () => {
         if (
             !checkInDate ||
             !checkOutDate ||
-            !validateInteger(idNumber) ||
+            !validateIds(idNumber) ||
             !issuer ||
             !guestName ||
-            !guestLastName
+            !guestLastName ||
+            !dateOfBirth ||
+            !validateIds(documentIdNumber) ||
+            !organizationType ||
+            !gender ||
+            !citizenship ||
+            !address
         ) {
-            ToastAndroid.show("Please fill out all the text fields", ToastAndroid.SHORT);
-            return;
+            ToastAndroid.show("Please fill out all fields", ToastAndroid.SHORT);
+            return false
         }
-
-        // Create the request body
-        const requestBody = {
-            name: guestName,
-            apartment: apartmentName,
-            idNumber: idNumber,
-            arrivalDate: checkInDate.toLocaleDateString(),
-            endDate: checkOutDate.toLocaleDateString(),
-            issuer: issuer,
-            issueDate: currentDateTime,
-        };
-
-        // Make the POST request
-
-        try {
-            // Configure Axios to handle response data as a raw binary response
-            const response = await axios.post("https://e613-46-188-225-44.ngrok.io/pdfgenerator/generate", requestBody, {
-                responseType: 'arraybuffer', // Handle response as an ArrayBuffer
-                headers: {
-                    'Accept': 'application/pdf', // Request PDF format
-                },
-            });
-
-            const pdfData = response.data; // PDF data as ArrayBuffer
-
-            const base64PdfData = base64js.fromByteArray(new Uint8Array(pdfData));
-
-            // Create a path to save the PDF locally
-            const pdfUri = `${FileSystem.cacheDirectory}generated.pdf`;
-
-            // Write the PDF data to the file
-            await FileSystem.writeAsStringAsync(pdfUri, base64PdfData, {
-                encoding: FileSystem.EncodingType.Base64,
-            });
-
-            console.log("PDF saved at:", pdfUri);
-
-            // Show a toast indicating successful PDF generation
-            ToastAndroid.show("PDF generated and saved", ToastAndroid.SHORT);
-
-            // Share the PDF file
-            await Sharing.shareAsync(pdfUri, {
-                mimeType: 'application/pdf',
-                dialogTitle: 'Share PDF Estimation',
-                UTI: 'com.adobe.pdf', // iOS-specific UTI
-            });
-
-        } catch (error) {
-            console.log("Error generating or saving PDF:", error);
-            ToastAndroid.show("Error generating or saving PDF", ToastAndroid.SHORT);
-        }
+        return true;
     };
 
 
     const getDocumentTextDetection = async () : Promise<string> => {
         const imageData = await selectImage();
 
-        let googleVisionRes = await fetch("https://vision.googleapis.com/v1/images:annotate?key=AIzaSyAHy4JqTmupy31oDAv3yPSe1vVrmt7DqDw",{
+        let googleVisionRes = await fetch("https://vision.googleapis.com/v1/images:annotate?key=",{
             method: 'POST',
             body: JSON.stringify({
                 "requests": [
@@ -289,6 +246,41 @@ const AddGuests = ({route}) => {
         }
     }
 
+    const handleRegistrationRequest = () =>{
+        if (!validateFieldState()){
+            ToastAndroid.show("Please fill out all the fields", ToastAndroid.SHORT);
+        }else {
+            const registrationData = {
+                apartmentName: apartmentName,
+                idNumber: idNumber,
+                documentIdNumber: documentIdNumber,
+                issuer: issuer,
+                gender: gender,
+                organizationType: organizationType,
+                citizenship: citizenship,
+                guestName: guestName,
+                guestLastName: guestLastName,
+                address: address,
+                checkInDate: checkInDate,
+                dateOfBirth: dateOfBirth,
+                checkOutDate: checkOutDate,
+                documentType: documentType
+            };
+
+            axios.post('localhost:8084/evisitor/register', registrationData)
+                .then(response => {
+                    console.log('Response:', response.data);
+                    ToastAndroid.show("Guest added successfully", ToastAndroid.SHORT);
+
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    ToastAndroid.show("Error registering guest, please check the provided information", ToastAndroid.SHORT);
+
+                });
+        }
+    }
+
     const twoDigitYearToFourDigit = (year: string) => {
         let longYear = 0;
         let shortYrAsInt = parseInt(year);
@@ -313,6 +305,7 @@ const AddGuests = ({route}) => {
         setDocumentIdNumber(guest.documentNumber);
         setCitizenship(guest.nationality);
         setIdNumber(guest.optional);
+        setDocumentType(guest.code)
     }
 
     return (
@@ -374,6 +367,14 @@ const AddGuests = ({route}) => {
                         />
                     )}
 
+                    <Text style={styles.inputTitle}>Guest ID Number (OIB)</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="38223234343"
+                        keyboardType="number-pad"
+                        onChangeText={handleDocumentTypeChange}
+                        value={documentType}
+                    />
                     <Text style={styles.inputTitle}>Guest ID Number (OIB)</Text>
                     <TextInput
                         style={styles.input}
@@ -509,7 +510,7 @@ const AddGuests = ({route}) => {
                     </View>
 
 
-                    <TouchableOpacity style={styles.button} onPress={handleGeneratePDF}>
+                    <TouchableOpacity style={styles.button} onPress={handleRegistrationRequest}>
                         <Text style={styles.buttonText}>Register guest</Text>
                     </TouchableOpacity>
                 </View>
