@@ -222,16 +222,16 @@ const AddGuests = ({route}) => {
             });
 
         } catch (error) {
-            console.error("Error generating or saving PDF:", error);
+            console.log("Error generating or saving PDF:", error);
             ToastAndroid.show("Error generating or saving PDF", ToastAndroid.SHORT);
         }
     };
 
 
-    const getDocumentTextDetection = async () => {
+    const getDocumentTextDetection = async () : Promise<string> => {
         const imageData = await selectImage();
 
-        let googleVisionRes = await fetch("https://vision.googleapis.com/v1/images:annotate?key=",{
+        let googleVisionRes = await fetch("https://vision.googleapis.com/v1/images:annotate?key=AIzaSyAHy4JqTmupy31oDAv3yPSe1vVrmt7DqDw",{
             method: 'POST',
             body: JSON.stringify({
                 "requests": [
@@ -251,16 +251,69 @@ const AddGuests = ({route}) => {
             const response = await googleVisionRes.json();
 
             if (response.responses && response.responses.length > 0) {
-                const fullTextAnnotation = response.responses[0].fullTextAnnotation;
+                const fullTextAnnotation = response.responses[0].fullTextAnnotation.text;
                 console.log("Full Text Annotation:", fullTextAnnotation);
+                return fullTextAnnotation
             } else {
                 console.log("No valid response or fullTextAnnotation found in the response.");
+                return "";
             }
         } catch (error) {
-            console.error("Error parsing or handling response:", error);
+            console.log("Error parsing or handling response:", error);
         }
     };
 
+    const getParsedMRZ = async () =>{
+        let fullTextAnnotation = await getDocumentTextDetection();
+        let lastMRZChar = fullTextAnnotation.lastIndexOf('<');
+        let MRZ = fullTextAnnotation.substring(lastMRZChar-92, lastMRZChar+1);
+        console.log("MACHINE READABLE ZONE:", MRZ);
+
+        const requestBody = {
+            mrz: MRZ.toString().replace(/^\n/, '')
+        };
+
+        try {
+            const response = await axios.post("https://00cb-46-188-225-44.ngrok.io/api/parse", requestBody, {
+                headers: {
+                    "Content-Type": "application/json"
+                },
+            });
+            console.log("PARSER RESPONSE:", response.data.givenNames);
+            handleAutomaticFieldInput(response.data);
+        }
+        catch (error){
+            console.log("REQUEST BODYYYY", requestBody);
+            console.log("ERRORRRRRRRRRR", error);
+            ToastAndroid.show("Error reading ID card, please try again", ToastAndroid.SHORT);
+        }
+    }
+
+    const twoDigitYearToFourDigit = (year: string) => {
+        let longYear = 0;
+        let shortYrAsInt = parseInt(year);
+        if (shortYrAsInt <= 23) {
+            longYear = shortYrAsInt + 2000;
+        } else {
+            longYear = shortYrAsInt + 1900;
+        }
+        return longYear;
+    }
+
+    const dateFromString = (date: string)=>{
+        const parts =date.split('/');
+        return new Date(twoDigitYearToFourDigit(parts[2]), parseInt(parts[1]), parseInt(parts[0]));
+    }
+
+    const handleAutomaticFieldInput = (guest: any) => {
+        setGuestName(guest.givenNames);
+        setGuestLastName(guest.surname);
+        setGender(guest.sex);
+        setDateOfBirth(dateFromString(guest.dateOfBirth));
+        setDocumentIdNumber(guest.documentNumber);
+        setCitizenship(guest.nationality);
+        setIdNumber(guest.optional);
+    }
 
     return (
         <InputScrollView>
@@ -274,7 +327,7 @@ const AddGuests = ({route}) => {
                     <Text style={styles.dateTimeText}>The fields below will be automatically filled in after scan. Please fill out all the fields which are empty after scan </Text>
 
 
-                    <TouchableOpacity style={styles.button} onPress={getDocumentTextDetection}>
+                    <TouchableOpacity style={styles.button} onPress={getParsedMRZ}>
                         <Text style={styles.buttonText}>Scan ID document</Text>
                     </TouchableOpacity>
 
@@ -295,7 +348,6 @@ const AddGuests = ({route}) => {
                     />
 
 
-                    {/* Check-In Date */}
                     <Text style={styles.inputTitle}>Check-In Date</Text>
                     <TouchableOpacity style={{width:"100%", marginHorizontal: 20}} onPress={() => setShowCheckInDatePicker(true)}>
                         <Text style={styles.input}>{checkInDate.toDateString()}</Text>
@@ -309,7 +361,6 @@ const AddGuests = ({route}) => {
                         />
                     )}
 
-                    {/* Check-Out Date */}
                     <Text style={styles.inputTitle}>Check-Out Date</Text>
                     <TouchableOpacity style={{width:"100%", marginHorizontal:20,}} onPress={() => setShowCheckOutDatePicker(true)}>
                         <Text style={styles.input}>{checkOutDate.toDateString()}</Text>
@@ -390,14 +441,14 @@ const AddGuests = ({route}) => {
                         <TouchableOpacity
                             style={[
                                 styles.radioButton,
-                                gender === "male" && styles.selectedRadioButton,
+                                gender === "Male" && styles.selectedRadioButton,
                             ]}
-                            onPress={() => handleGenderChange("male")}
+                            onPress={() => handleGenderChange("Male")}
                         >
                             <Text
                                 style={[
                                     styles.radioButtonText,
-                                    gender === "male" && styles.selectedRadioButtonText,
+                                    gender === "Male" && styles.selectedRadioButtonText,
                                 ]}
                             >
                                 Male
@@ -406,14 +457,14 @@ const AddGuests = ({route}) => {
                         <TouchableOpacity
                             style={[
                                 styles.radioButton,
-                                gender === "female" && styles.selectedRadioButton,
+                                gender === "Female" && styles.selectedRadioButton,
                             ]}
-                            onPress={() => handleGenderChange("female")}
+                            onPress={() => handleGenderChange("Female")}
                         >
                             <Text
                                 style={[
                                     styles.radioButtonText,
-                                    gender === "female" && styles.selectedRadioButtonText,
+                                    gender === "Female" && styles.selectedRadioButtonText,
                                 ]}
                             >
                                 Female
