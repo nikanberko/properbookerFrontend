@@ -55,7 +55,6 @@ export const Layout = () => {
                           name="Home"
                           component={Home}
                           options={{
-                              //headerRight: () => <Button onPress={onLogout}  title="Sign out"/>,
                               headerBackButtonMenuEnabled: false,
                               headerTitle:"",
                               headerShown:false

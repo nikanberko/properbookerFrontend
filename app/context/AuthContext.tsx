@@ -11,7 +11,7 @@ interface AuthProps{
 }
 
 const TOKEN_KEY = 'my_jwt';
-export const API_URL = 'https://6517-46-188-225-44.ngrok.io/users/';
+export const API_URL = 'https://fe81-46-188-249-47.ngrok.io/jwtauth/users/';
 const AuthContext = createContext<AuthProps>({});
 
 export const useAuth = () => {
@@ -30,7 +30,6 @@ export const AuthProvider = ({children}: any)=> {
     useEffect(()=>{
         const loadToken = async () => {
             const token = await SecureStore.getItemAsync(TOKEN_KEY);
-            console.log("stored token", token);
 
             if(token){
                 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -48,7 +47,7 @@ export const AuthProvider = ({children}: any)=> {
                 username: username,
                 email: email,
                 password: password,
-                appUserRoles: ["ROLE_ADMIN"] // Assuming you want to assign ROLE_ADMIN by default
+                appUserRoles: ["ROLE_ADMIN"]
             };
             return await axios.post(`${API_URL}signup`, data);
         }
@@ -64,14 +63,11 @@ export const AuthProvider = ({children}: any)=> {
                 password: password,
             };
 
-            console.log("ENTERING REAL LOGIN");
             const response = await axios.post(`${API_URL}signin`, data, {
                 headers: {
                     "Content-Type": "application/json",
                 },
             });
-
-            console.log("RESPONSE", response);
 
             if (response.status === 200) {
                 setAuthState({
@@ -81,7 +77,6 @@ export const AuthProvider = ({children}: any)=> {
 
                 axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
 
-                console.log("TOKEN", authState.token);
                 await SecureStore.setItemAsync(TOKEN_KEY, response.data.token);
 
                 return response.data;

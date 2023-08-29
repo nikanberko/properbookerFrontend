@@ -12,9 +12,7 @@ const Login = ({navigation}) => {
     const {onLogin, onRegister} = useAuth();
 
     const login = async () => {
-        console.log("entering login");
         const result = await onLogin!(username, password);
-        console.log("exiting login");
         if(result && result.error) {
             ToastAndroid.show(result.msg, ToastAndroid.SHORT);
         }

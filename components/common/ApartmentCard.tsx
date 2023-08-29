@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
         margin: 10,
     },
     image: {
-        height: 100, // Adjust the height as needed
+        height: 100,
         width: '100%',
     },
     details: {

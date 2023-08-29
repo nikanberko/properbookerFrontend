@@ -52,14 +52,12 @@ const AddGuests = ({route}) => {
         await ensureDirExists();
         const filename = new Date().getTime() +'.jpg';
         const dest = imgDir + filename;
-        console.log("DESTINATION", dest);
         await FileSystem.copyAsync({from: uri, to: dest});
 
         const imageData = await FileSystem.readAsStringAsync(dest, {
             encoding: FileSystem.EncodingType.Base64,
         });
 
-        console.log("BASE64", imageData);
         return imageData;
     }
 
@@ -80,18 +78,10 @@ const AddGuests = ({route}) => {
         return () => clearInterval(interval);
     }, []);
 
-    const validateInteger = (text) => {
-        return /^0$|^[1-9]\d*$/.test(text); // Allow 0 or positive integers without leading zeroes
-    };
-
     const validateIds = (text) => {
         return /^\d+$/.test(text);
     };
 
-
-    const validateDecimal = (text) => {
-        return /^\d+(\.\d+)?$/.test(text);
-    };
 
     const handleIdNumberChange = (text) => {
         if (!validateIds(text)) {
@@ -188,7 +178,7 @@ const AddGuests = ({route}) => {
     const getDocumentTextDetection = async () : Promise<string> => {
         const imageData = await selectImage();
 
-        let googleVisionRes = await fetch("https://vision.googleapis.com/v1/images:annotate?key=",{
+        let googleVisionRes = await fetch("https://vision.googleapis.com/v1/images:annotate?key=AIzaSyDGPsIAbY1xzy1yjSc7NajGJTJbLp63YxE",{
             method: 'POST',
             body: JSON.stringify({
                 "requests": [
@@ -209,7 +199,6 @@ const AddGuests = ({route}) => {
 
             if (response.responses && response.responses.length > 0) {
                 const fullTextAnnotation = response.responses[0].fullTextAnnotation.text;
-                console.log("Full Text Annotation:", fullTextAnnotation);
                 return fullTextAnnotation
             } else {
                 console.log("No valid response or fullTextAnnotation found in the response.");
@@ -224,24 +213,19 @@ const AddGuests = ({route}) => {
         let fullTextAnnotation = await getDocumentTextDetection();
         let lastMRZChar = fullTextAnnotation.lastIndexOf('<');
         let MRZ = fullTextAnnotation.substring(lastMRZChar-92, lastMRZChar+1);
-        console.log("MACHINE READABLE ZONE:", MRZ);
-
         const requestBody = {
             mrz: MRZ.toString().replace(/^\n/, '')
         };
 
         try {
-            const response = await axios.post("https://00cb-46-188-225-44.ngrok.io/api/parse", requestBody, {
+            const response = await axios.post("https://fe81-46-188-249-47.ngrok.io/mrzparser/api/parse", requestBody, {
                 headers: {
                     "Content-Type": "application/json"
                 },
             });
-            console.log("PARSER RESPONSE:", response.data.givenNames);
             handleAutomaticFieldInput(response.data);
         }
         catch (error){
-            console.log("REQUEST BODYYYY", requestBody);
-            console.log("ERRORRRRRRRRRR", error);
             ToastAndroid.show("Error reading ID card, please try again", ToastAndroid.SHORT);
         }
     }

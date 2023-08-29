@@ -176,7 +176,6 @@ const PdfGenerator = ({route}) => {
 
 
     const handleGeneratePDF = async () => {
-        // Check for empty or invalid fields
         if (
             !checkInDate ||
             !checkOutDate ||
@@ -195,7 +194,6 @@ const PdfGenerator = ({route}) => {
             return;
         }
 
-        // Create the request body
         const requestBody = {
             name: estimationFor,
             apartment: apartmentName,
@@ -214,34 +212,25 @@ const PdfGenerator = ({route}) => {
             issuerId: issuerIdNumber
         };
 
-        // Make the POST request
-
         try {
-            // Configure Axios to handle response data as a raw binary response
-            const response = await axios.post("https://ceeb-46-188-225-44.ngrok.io/pdfgenerator/generate", requestBody, {
-                responseType: 'arraybuffer', // Handle response as an ArrayBuffer
+            const response = await axios.post("https://fe81-46-188-249-47.ngrok.io/pdfgenerator/pdfgenerator/generate", requestBody, {
+                responseType: 'arraybuffer',
                 headers: {
-                    'Accept': 'application/pdf', // Request PDF format
+                    'Accept': 'application/pdf',
                 },
             });
 
-            const pdfData = response.data; // PDF data as ArrayBuffer
+            const pdfData = response.data;
             const base64PdfData = base64js.fromByteArray(new Uint8Array(pdfData));
 
-            // Create a path to save the PDF locally
             const pdfUri = `${FileSystem.cacheDirectory}generated.pdf`;
 
-            // Write the PDF data to the file
             await FileSystem.writeAsStringAsync(pdfUri, base64PdfData, {
                 encoding: FileSystem.EncodingType.Base64,
             });
 
-            console.log("PDF saved at:", pdfUri);
-
-            // Show a toast indicating successful PDF generation
             ToastAndroid.show("PDF generated and saved", ToastAndroid.SHORT);
 
-            // Share the PDF file
             await Sharing.shareAsync(pdfUri, {
                 mimeType: 'application/pdf',
                 dialogTitle: 'Share PDF Estimation',

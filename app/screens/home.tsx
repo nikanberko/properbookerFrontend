@@ -10,7 +10,7 @@ import apartmentImage from "../../assets/apartment.jpg";
 import {useAuth} from "../context/AuthContext";
 
 const Home = () => {
-    const [username, setUsername] = useState(""); // State for storing the username
+    const [username, setUsername] = useState("");
     const [apartments, setApartments] = useState([]);
     const [currentDateTime, setCurrentDateTime] = useState('');
     const { onLogout } = useAuth();
@@ -19,32 +19,27 @@ const Home = () => {
     const getTokenAndDecode = async () => {
         const token = await retrieveToken();
         if (token) {
-            // Decode the token payload
             const decodedToken = jwtDecode(token);
-            setUsername(decodedToken.sub); // Set the username state
+            setUsername(decodedToken.sub);
         } else {
             setUsername(null);
         }
     };
 
     const getUserApartments = async () => {
-        // Your API endpoint URL
-        const apiUrl = 'https://7f3e-46-188-225-44.ngrok.io/apartments';
+        const apiUrl = 'https://fe81-46-188-249-47.ngrok.io/apartmentmanagement/apartments';
 
-        // Your authorization token
         const authToken = await retrieveToken();
 
-        // Set up Axios instance with default headers
         const axiosInstance = axios.create({
             baseURL: apiUrl,
             headers: {
                 'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json', // You can adjust this header if needed
+                'Content-Type': 'application/json',
             },
         });
 
         try {
-            // Make the GET request
             const response = await axiosInstance.get('/getall');
             if(response.data!==null){
             setApartments(response.data);}
@@ -70,7 +65,7 @@ const Home = () => {
             setCurrentDateTime(formattedDateTime);
         };
 
-        updateDateTime(); // Update immediately
+        updateDateTime();
         const interval = setInterval(updateDateTime, 60000); // Update every minute
 
         return () => clearInterval(interval);
@@ -94,8 +89,6 @@ const Home = () => {
                     paddingRight: 20,
                     marginHorizontal: 10,
                     backgroundColor: COLORS.trueWhite,
-                    //borderBottomLeftRadius: 10,
-                    //borderBottomRightRadius: 10,
                     borderRadius: 10,
                     elevation: 5,
                 }}
