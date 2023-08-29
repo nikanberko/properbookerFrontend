@@ -27,7 +27,7 @@ const Home = () => {
     };
 
     const getUserApartments = async () => {
-        const apiUrl = 'https://fe81-46-188-249-47.ngrok.io/apartmentmanagement/apartments';
+        const apiUrl = 'https://bdc1-46-188-249-47.ngrok.io/apartmentmanagement/apartments';
 
         const authToken = await retrieveToken();
 

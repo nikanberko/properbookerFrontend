@@ -213,7 +213,7 @@ const PdfGenerator = ({route}) => {
         };
 
         try {
-            const response = await axios.post("https://fe81-46-188-249-47.ngrok.io/pdfgenerator/pdfgenerator/generate", requestBody, {
+            const response = await axios.post("https://bdc1-46-188-249-47.ngrok.io/pdfgenerator/pdfgenerator/generate", requestBody, {
                 responseType: 'arraybuffer',
                 headers: {
                     'Accept': 'application/pdf',

@@ -178,7 +178,7 @@ const AddGuests = ({route}) => {
     const getDocumentTextDetection = async () : Promise<string> => {
         const imageData = await selectImage();
 
-        let googleVisionRes = await fetch("https://vision.googleapis.com/v1/images:annotate?key=AIzaSyDGPsIAbY1xzy1yjSc7NajGJTJbLp63YxE",{
+        let googleVisionRes = await fetch("https://vision.googleapis.com/v1/images:annotate?key=AIzaSyDxWV9ebIEFsoRk2jKe8vA5dMLKQiwjpRE",{
             method: 'POST',
             body: JSON.stringify({
                 "requests": [
@@ -218,7 +218,7 @@ const AddGuests = ({route}) => {
         };
 
         try {
-            const response = await axios.post("https://fe81-46-188-249-47.ngrok.io/mrzparser/api/parse", requestBody, {
+            const response = await axios.post("https://bdc1-46-188-249-47.ngrok.io/mrzparser/api/parse", requestBody, {
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -351,7 +351,7 @@ const AddGuests = ({route}) => {
                         />
                     )}
 
-                    <Text style={styles.inputTitle}>Guest ID Number (OIB)</Text>
+                    <Text style={styles.inputTitle}>Document type</Text>
                     <TextInput
                         style={styles.input}
                         placeholder="38223234343"
