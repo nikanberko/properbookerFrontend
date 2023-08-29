@@ -106,7 +106,7 @@ const Welcome = ({navigation}) => {
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        onPress={() => navigation.navigate("Login")}
+                        onPress={() => navigation.navigate("Registration")}
                         style={{
                             paddingVertical: 10 * 1.5,
                             paddingHorizontal: 10 * 2,

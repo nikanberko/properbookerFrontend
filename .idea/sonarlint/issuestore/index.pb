@@ -1,6 +1,4 @@
 
-G
-app/screens/welcome.tsx,9/e/9ece540835709e1460943148c4472c5030e62956
 R
 "components/common/AppTextInput.tsx,3/d/3dd0163073d60631a11c36630b4dcb1b73b8d936
 <

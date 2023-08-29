@@ -8,6 +8,8 @@ import base64js from "base64-js"
 import * as Sharing from "expo-sharing"
 import styles from "../styles/component-styling";
 import * as ImagePicker from "expo-image-picker";
+import {useAuth} from "../context/AuthContext";
+import {retrieveToken} from "../utils/retireveToken";
 
 const imgDir= FileSystem.documentDirectory + 'images/';
 const ensureDirExists = async () => {
@@ -178,7 +180,7 @@ const AddGuests = ({route}) => {
     const getDocumentTextDetection = async () : Promise<string> => {
         const imageData = await selectImage();
 
-        let googleVisionRes = await fetch("https://vision.googleapis.com/v1/images:annotate?key=AIzaSyDxWV9ebIEFsoRk2jKe8vA5dMLKQiwjpRE",{
+        let googleVisionRes = await fetch("https://vision.googleapis.com/v1/images:annotate?key=",{
             method: 'POST',
             body: JSON.stringify({
                 "requests": [
@@ -218,8 +220,10 @@ const AddGuests = ({route}) => {
         };
 
         try {
+            const authToken = await retrieveToken();
             const response = await axios.post("https://bdc1-46-188-249-47.ngrok.io/mrzparser/api/parse", requestBody, {
                 headers: {
+                    'Authorization': `Bearer ${authToken}`,
                     "Content-Type": "application/json"
                 },
             });
@@ -251,7 +255,7 @@ const AddGuests = ({route}) => {
                 documentType: documentType
             };
 
-            axios.post('localhost:8084/evisitor/register', registrationData)
+            axios.post('https://bdc1-46-188-249-47.ngrok.io/mockevisitor/evisitor/register', registrationData)
                 .then(response => {
                     console.log('Response:', response.data);
                     ToastAndroid.show("Guest added successfully", ToastAndroid.SHORT);

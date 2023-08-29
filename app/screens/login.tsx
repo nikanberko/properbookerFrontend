@@ -100,7 +100,7 @@ const Login = ({navigation}) => {
 
             <TouchableOpacity style={{
             padding: 10}
-            } onPress={register} >
+            } onPress={() => navigation.navigate("Registration")} >
                 <Text
                     style={{
                         fontFamily: FONT.regular,
