@@ -1,5 +1,4 @@
 import {
-    StyleSheet,
     TextInput,
 } from "react-native";
 import React, { useState } from "react";
@@ -38,5 +37,3 @@ const AppTextInput = ({ ...otherProps }) => {
 };
 
 export default AppTextInput;
-
-const styles = StyleSheet.create({});
