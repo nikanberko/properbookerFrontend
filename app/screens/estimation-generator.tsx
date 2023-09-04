@@ -8,6 +8,7 @@ import * as FileSystem from 'expo-file-system';
 import base64js from "base64-js"
 import * as Sharing from "expo-sharing"
 import {retrieveToken} from "../utils/retireveToken";
+import {baseUrl} from "../utils/apiUrls";
 
 const PdfGenerator = ({route}) => {
     const { apartmentName } = route.params
@@ -217,7 +218,7 @@ const PdfGenerator = ({route}) => {
             const authToken = await retrieveToken();
 
 
-            const response = await axios.post("https://bdc1-46-188-249-47.ngrok.io/pdfgenerator/pdfgenerator/generate", requestBody, {
+            const response = await axios.post(baseUrl+"/pdfgenerator/pdfgenerator/generate", requestBody, {
                 responseType: 'arraybuffer',
                 headers: {
                     'Authorization': `Bearer ${authToken}`,

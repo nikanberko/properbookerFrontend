@@ -2,6 +2,7 @@ import {createContext, useContext, useEffect, useState} from "react";
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import {ToastAndroid} from "react-native";
+import {baseUrl} from "../utils/apiUrls";
 
 interface AuthProps{
     authState?: {token: string | null; authenticated:boolean | null};
@@ -11,7 +12,7 @@ interface AuthProps{
 }
 
 const TOKEN_KEY = 'my_jwt';
-export const API_URL = 'https://bdc1-46-188-249-47.ngrok.io/jwtauth/users/';
+export const API_URL = baseUrl+'/jwtauth/users/';
 const AuthContext = createContext<AuthProps>({});
 
 export const useAuth = () => {

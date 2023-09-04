@@ -35,7 +35,7 @@ const Registration = ({navigation}) => {
                     >
                         Oops! It looks like you don't have an account
                     </Text>
-                    <TextBack to
+                    <Text
                         style={{
                             marginTop: 10,
                             fontFamily: FONT.regular,

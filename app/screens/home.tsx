@@ -8,6 +8,7 @@ import axios from "axios";
 import ApartmentCard from "../../components/common/ApartmentCard";
 import apartmentImage from "../../assets/apartment.jpg";
 import {useAuth} from "../context/AuthContext";
+import {baseUrl} from "../utils/apiUrls";
 
 const Home = () => {
     const [username, setUsername] = useState("");
@@ -27,7 +28,7 @@ const Home = () => {
     };
 
     const getUserApartments = async () => {
-        const apiUrl = 'https://bdc1-46-188-249-47.ngrok.io/apartmentmanagement/apartments';
+        const apiUrl = baseUrl+'/apartmentmanagement/apartments';
 
         const authToken = await retrieveToken();
 

@@ -70,11 +70,13 @@ export const Layout = () => {
                       options={{ headerShown: false }}
                   />
               )}
-              <Stack.Screen
-                  name="Registration"
-                  component={Registration}
-                  options={{headerShown: false}}
-              />
+              {!authState?.authenticated && (
+                  <Stack.Screen
+                      name="Registration"
+                      component={Registration}
+                      options={{headerShown: false}}
+                  />
+              )}
               <Stack.Screen
                   name="PdfGenerator"
                   component={PdfGenerator}
