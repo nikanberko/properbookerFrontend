@@ -202,6 +202,7 @@ const AddGuests = ({route}) => {
 
             if (response.responses && response.responses.length > 0) {
                 const fullTextAnnotation = response.responses[0].fullTextAnnotation.text;
+                console.log(fullTextAnnotation);
                 return fullTextAnnotation
             } else {
                 console.log("No valid response or fullTextAnnotation found in the response.");
@@ -294,7 +295,19 @@ const AddGuests = ({route}) => {
         setDocumentIdNumber(guest.documentNumber);
         setCitizenship(guest.nationality);
         setIdNumber(guest.optional);
-        setDocumentType(guest.code)
+
+        if (guest.code.toString().includes('Type')){
+            setDocumentType('ID');
+        }
+        else if (guest.code.toString().includes('Passport')){
+            setDocumentType('Passport');
+        }
+        else if (guest.code.toString().includes('Migrant')){
+            setDocumentType('Migrant');
+        }
+        else{
+            setDocumentType('');
+        }
     }
 
     return (
@@ -356,11 +369,10 @@ const AddGuests = ({route}) => {
                         />
                     )}
 
-                    <Text style={styles.inputTitle}>Document type</Text>
+                    <Text style={styles.inputTitle}>Document type (Passport/ID)</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="38223234343"
-                        keyboardType="number-pad"
+                        placeholder="Passport"
                         onChangeText={handleDocumentTypeChange}
                         value={documentType}
                     />
